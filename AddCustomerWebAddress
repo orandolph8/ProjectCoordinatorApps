@@ -1,0 +1,25 @@
+function extractLinks() {
+  var spreadsheetUrl = "https://docs.google.com/spreadsheets/d/1ZvzV5uPU-llzmxKyIAVabWvGKNNWu1KF53BPrRHcneM/edit?pli=1#gid=0";
+  var sheetName = "Residential Projects";
+
+  var spreadsheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+  var sheet = spreadsheet.getSheetByName(sheetName);
+     
+  if (!sheet) {
+    Logger.log("Sheet 'Residential Projects' not found.");
+    return;
+  }
+  
+  var rangeA = sheet.getRange("A:A");
+  var richTextValuesA = rangeA.getRichTextValues();
+
+  var rangeT = sheet.getRange("X:X");
+
+  for (var i = 0; i < richTextValuesA.length; i++) {
+    var richTextA = richTextValuesA[i][0];
+    if (richTextA && richTextA.getLinkUrl()) {
+      var linkUrl = richTextA.getLinkUrl();
+      rangeT.getCell(i + 1, 1).setValue(linkUrl);
+    }
+  }
+}
