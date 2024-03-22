@@ -13,7 +13,7 @@ function extractLinks() {
   var rangeA = sheet.getRange("A:A");
   var richTextValuesA = rangeA.getRichTextValues();
 
-  var rangeT = sheet.getRange("X:X");
+  var rangeT = sheet.getRange("Y:Y");
 
   for (var i = 0; i < richTextValuesA.length; i++) {
     var richTextA = richTextValuesA[i][0];
