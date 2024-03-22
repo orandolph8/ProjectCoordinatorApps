@@ -1,0 +1,51 @@
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  // Create a custom menu
+  ui.createMenu('Customer Add')
+    .addItem('Open Dialog', 'openDialog')
+    .addToUi();
+}
+
+function openDialog() {
+  var html = HtmlService.createHtmlOutputFromFile('dialog')
+    .setWidth(300)
+    .setHeight(200);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Enter Details');
+}
+
+function submitForm(form) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  var name = form.customerName;
+  var url = form.customerURL;
+
+  // Find the row to insert the name alphabetically
+  var names = sheet.getRange('A5:A').getValues().flat();
+  var index = 0;
+  while (names[index] && names[index] < name) {
+    index++;
+  } 
+  
+  // Insert data into row 5
+  var row = 5;
+  sheet.insertRowBefore(row);
+  var nameCell = sheet.getRange('A' + row);
+  nameCell.setValue(name);
+  var nameFormula = '=HYPERLINK("' + url + '","' + name + '")';
+  nameCell.setFormula(nameFormula);
+  
+  var urlCell = sheet.getRange('Y' + row);
+  urlCell.setValue(url);
+  
+  // Sort the data alphabetically after insertion
+  var lastRow = sheet.getLastRow();
+  var dataRange = sheet.getRange('A5:Y' + lastRow);
+  dataRange.sort({column: 1, ascending: true}); // Sorting by column A
+
+  // Copy formulas from the row above and apply them to the new row
+  var aboveRow = newRow + 1;
+  var lastColumn = sheet.getLastColumn();
+  var aboveRowRange = sheet.getRange(aboveRow, 1, 1, lastColumn);
+  var newRowRange = sheet.getRange(newRow, 1, 1, lastColumn);
+  aboveRowRange.copyTo(newRowRange, {contentsOnly:false});
+}
