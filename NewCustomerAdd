@@ -2,12 +2,12 @@ function onOpen() {
   var ui = SpreadsheetApp.getUi();
   // Create a custom menu
   ui.createMenu('Customer Add')
-    .addItem('Open Dialog', 'openDialog')
+    .addItem('New Customer', 'openDialog')
     .addToUi();
 }
 
 function openDialog() {
-  var html = HtmlService.createHtmlOutputFromFile('dialog')
+  var html = HtmlService.createHtmlOutputFromFile('NewCustomerDialog')
     .setWidth(300)
     .setHeight(200);
   SpreadsheetApp.getUi().showModalDialog(html, 'Enter Details');
@@ -42,10 +42,24 @@ function submitForm(form) {
   var dataRange = sheet.getRange('A5:Y' + lastRow);
   dataRange.sort({column: 1, ascending: true}); // Sorting by column A
 
-  // Copy formulas from the row above and apply them to the new row
-  var aboveRow = newRow + 1;
-  var lastColumn = sheet.getLastColumn();
-  var aboveRowRange = sheet.getRange(aboveRow, 1, 1, lastColumn);
-  var newRowRange = sheet.getRange(newRow, 1, 1, lastColumn);
-  aboveRowRange.copyTo(newRowRange, {contentsOnly:false});
+  // Add the formula =(Q_/R_) into the new cell N_ where _ is the row where the new customer was added to
+  var newCellN = sheet.getRange('N' + row);
+  newCellN.setFormula('=Q' + row + '/R' + row);
+
+  // Add the formula =TODAY()-T_ into the new cell M_ where _ is the row where the new customer was added to
+  var newCellM = sheet.getRange('M' + row);
+  newCellM.setFormula('=TODAY()-T' + row);
+
+  // Add the formula =IF(ISNUMBER(SEARCH("Yesterday", J_)), 1, IF(ISNUMBER(SEARCH("Today", J_)), 0, TODAY() - DATEVALUE(LEFT(J_, 6)))) to column L
+  for (var i = 5; i <= lastRow; i++) {
+    var cellJ = sheet.getRange('J' + i);
+    var cellL = sheet.getRange('L' + i);
+    cellL.setFormula('=IF(ISNUMBER(SEARCH("Yesterday", J' + i + ')), 1, IF(ISNUMBER(SEARCH("Today", J' + i + ')), 0, TODAY() - DATEVALUE(LEFT(J' + i + ', 6))))');
+
+    var cellN = sheet.getRange('N' + i);
+    cellN.setFormula('=Q' + i + '/R' + i);
+
+    var cellM = sheet.getRange('M' + i);
+    cellM.setFormula('=TODAY()-T' + i);
+  }
 }
