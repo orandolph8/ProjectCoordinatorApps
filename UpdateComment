@@ -1,0 +1,22 @@
+function openWebApp() {
+  var html = HtmlService.createHtmlOutput('<script>window.open("http://127.0.0.1:5000/CommentUpdate", "_blank");google.script.host.close();</script>')
+      .setWidth(100)
+      .setHeight(100);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Start Comment Update');
+}
+
+function runAtSpecificTime() {
+  // Get current date and time
+  var now = new Date();
+  var currentHour = now.getHours();
+  var currentMinute = now.getMinutes();
+  
+  // Check if the current time falls within the desired time ranges
+  if ((currentHour === 8 && currentMinute === 40) || (currentHour === 13 && currentMinute === 1)) {
+    // Run your script here
+    // This code will be executed only at 8:40 AM or 1:01 PM
+  } else {
+    // Log that the script is not scheduled to run at the current time
+    Logger.log("Script not scheduled to run at the current time.");
+  }
+}
