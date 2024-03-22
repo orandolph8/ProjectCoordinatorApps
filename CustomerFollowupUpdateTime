@@ -1,0 +1,39 @@
+function onEdit(e) {
+  // Check if the event object and its properties are defined
+  if (e && e.range && e.range.getSheet) {
+    var range = e.range;
+    var sheet = range.getSheet();
+    var column = range.getColumn();
+    
+    // Check if the edited cell is in column G and the sheet name is "Residential Projects"
+    if (column == 16 && sheet.getName() == "Residential Projects") {
+      var cellValue = range.getValue();
+      var now = new Date();
+      
+      // If the edited cell value is "Contacted", update the note with timestamp
+      var cell = e.range;
+      cell.setNote("Last updated: " + now.toLocaleString());
+        
+      // Retrieve the existing note of the edited cell
+      var existingNote = range.getNote();
+      
+      // If the existing note contains "Last updated:", update the timestamp
+      if (existingNote && existingNote.indexOf("Last updated:") !== -1) {
+        var index = existingNote.indexOf("Last updated:") + "Last updated:".length;
+        var updatedNote = existingNote.substring(0, index) + " " + now.toLocaleString();
+        range.setNote(updatedNote);
+      } else {
+        // If the existing note does not contain "Last updated:", add the timestamp to the note
+        range.setNote(existingNote ? existingNote + ", " + now.toLocaleString() : "Last updated: " + now.toLocaleString());
+      }
+      
+      // Add a trigger to reset the cell value to "Not Contacted" after 1 minute
+      var triggerTime = new Date(now.getTime() + 60000); // 60000 milliseconds = 1 minute
+      ScriptApp.newTrigger("resetValueToNotContacted")
+               .timeBased()
+               .at(triggerTime)
+               .forSpreadsheet(sheet.getParent())
+               .create();
+    }
+  }
+}
