@@ -1,0 +1,23 @@
+function updateStatus() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Residential Projects");
+  var dataRange = sheet.getRange("p5:p");
+  var values = dataRange.getValues();
+  var now = new Date().getTime(); // Get current time as Unix timestamp
+  
+  // Iterate over each cell in column O
+  for (var i = 0; i < values.length; i++) {
+    var cellValue = values[i][0];
+    if (cellValue === "Contacted") {
+      var cell = dataRange.getCell(i + 1, 1); // Adjusting index to 1-based
+      var lastUpdated = new Date(cell.getNote()).getTime(); // Convert note to Unix timestamp
+      if (!lastUpdated || now - lastUpdated >= 7 * 24 * 60 * 60* 1000) { // Check if 7 days has passed
+        // Add timestamp before changing cell value
+        var timestamp = new Date().toLocaleString();
+        cell.setNote("Last updated: " + timestamp);
+        
+        // Change cell value to "Not contacted"
+        cell.setValue("Not contacted");
+      }
+    }
+  }
+}
